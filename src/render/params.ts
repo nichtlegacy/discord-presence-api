@@ -38,7 +38,7 @@ export interface CardParams {
   animated: boolean;
   animatedDecoration: boolean;
   animatedBanner: boolean;
-  /** Transcode the collectible's animated variant; needs ffmpeg in the image. */
+  /** Transcode the collectible's animated variant; falls back to static without ffmpeg. */
   animatedNameplate: boolean;
   hideStatus: boolean;
   /** The presence dot on the avatar, independent of the custom status text. */
@@ -142,7 +142,7 @@ function parse(query: Record<string, string | undefined>): CardParams {
     animated: bool(query.animated, true),
     animatedDecoration: bool(query.animatedDecoration),
     animatedBanner: bool(query.animatedBanner),
-    animatedNameplate: bool(query.animatedNameplate),
+    animatedNameplate: bool(query.animatedNameplate, true),
     hideStatus: bool(query.hideStatus),
     hidePresence: bool(query.hidePresence),
     hideTag: bool(query.hideTag ?? query.hideClan),

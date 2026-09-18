@@ -213,7 +213,7 @@ Parameter names follow [cnrad/lanyard-profile-readme](https://github.com/cnrad/l
 | `animated` | `true`, `false` — animated avatar | `true` |
 | `animatedDecoration` | `true`, `false` | `false` |
 | `animatedBanner` | `true`, `false` | `false` |
-| `animatedNameplate` | `true`, `false` — transcodes the collectible's animation | `false` |
+| `animatedNameplate` | `true`, `false` — transcodes the collectible's animation | `true` |
 
 </details>
 
@@ -239,7 +239,7 @@ Unknown or malformed values fall back to the default — they are never passed t
 
 **Connected accounts.** Brand marks are generated from the official [simple-icons](https://simpleicons.org) package into [`src/render/brands.ts`](src/render/brands.ts) (`npm run brands`) and inlined, so rendering never reaches an icon host. Xbox and Skype have no simple-icons entry any more and are skipped rather than approximated.
 
-**Animated collectibles.** Discord ships animated nameplates as `.webm`, and a video never plays inside an SVG. An animated raster does, though — including in the static image context a README embed uses. So `animatedNameplate=true` transcodes the video to animated WebP once and inlines it: at the size the plate is drawn that costs about 14 KB over the static render, against roughly 70 KB for the same frames as GIF. This needs `ffmpeg`, which the container image installs. Without it the card logs a warning once and falls back to the static plate.
+**Animated collectibles.** Discord ships animated nameplates as `.webm`, and a video never plays inside an SVG. An animated raster does, though — including in the static image context a README embed uses. So the video is transcoded to animated WebP once and inlined: at the size the plate is drawn that costs about 14 KB over the static render, against roughly 70 KB for the same frames as GIF. On by default, because the plate is the one part of the card meant to move and the transcode is cached for a day; `animatedNameplate=false` turns it off. This needs `ffmpeg`, which the container image installs — without it the card logs a warning once and falls back to the static plate.
 
 **Payload size.** Every image is inlined, so animation is the dominant cost:
 
@@ -251,7 +251,8 @@ Unknown or malformed values fall back to the default — they are never passed t
 | `layout=banner&animatedBanner=true` | ~863 KB |
 | `animatedNameplate=true` | +14 KB over the static plate |
 
-That is why animated banners and decorations are opt-in while the avatar follows the upstream default.
+That is why animated banners and decorations stay opt-in, while the avatar and
+the nameplate follow what Discord itself shows.
 
 ## Endpoints
 
