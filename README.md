@@ -15,9 +15,9 @@
 
 <br>
 
-<img src="https://discord-presence.nichtlegacy.com/v1/users/400672307833733121/card.svg" alt="Discord presence card, portrait layout">
+<img src="https://discord-presence.nichtlegacy.com/v1/users/400672307833733121/card.svg?hideBadges=true&profileGradient=false&nameStyles=false" alt="Discord presence card, portrait layout">
 
-<img src="https://discord-presence.nichtlegacy.com/v1/users/400672307833733121/card.svg?layout=wide" alt="Discord presence card, wide layout">
+<img src="https://discord-presence.nichtlegacy.com/v1/users/400672307833733121/card.svg?layout=wide&hideBadges=true&profileGradient=false&nameStyles=false" alt="Discord presence card, wide layout">
 
 <sub>Both images are live renders from a running instance — status, activity and progress update on their own.</sub>
 
