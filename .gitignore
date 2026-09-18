@@ -1,0 +1,18 @@
+# Build output and dependencies
+node_modules/
+dist/
+
+# Environment: only the committed template is tracked.
+.env*
+!.env.example
+
+# Editor and OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Agent config
+.claude/
+.agent/

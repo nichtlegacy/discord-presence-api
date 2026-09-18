@@ -1,0 +1,39 @@
+services:
+  discord-presence-api:
+    # Swap for `build: .` when running from a checkout instead of the registry.
+    image: ghcr.io/nichtlegacy/discord-presence-api:latest
+    container_name: discord-presence-api
+    restart: unless-stopped
+
+    ports:
+      # Reverse proxy target. Only the card route needs to reach the internet;
+      # own clients (dashboard, Glance) can use this port directly on the LAN.
+      - "${HOST_PORT:-9242}:8080"
+
+    environment:
+      # Without this the service answers 403 to everything.
+      ALLOWED_USER_IDS: ${ALLOWED_USER_IDS}
+      # Only with a proxy that overwrites X-Forwarded-For — otherwise a client
+      # can hand in any address and walk around the rate limit.
+      TRUST_PROXY: ${TRUST_PROXY:-true}
+      # Card defaults for this instance; request parameters still win.
+      DEFAULT_PARAMS: ${DEFAULT_PARAMS:-}
+      PORT: "8080"
+
+    # No secrets, no state, nothing to write — except the scratch space ffmpeg
+    # needs while transcoding animated collectibles.
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 256m
+    pids_limit: 128
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

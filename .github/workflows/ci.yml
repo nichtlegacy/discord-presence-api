@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Set up Node
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v5.0.0
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Run tests
+        run: npm test
+
+      - name: Brand marks are in sync
+        # src/render/brands.ts is generated from simple-icons and committed.
+        # A dependency bump that changes a path must not land silently.
+        run: |
+          npm run brands
+          git diff --exit-code src/render/brands.ts
+
+  docker_build_check:
+    name: Docker Build Check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
+
+      - name: Build Docker image
+        uses: docker/build-push-action@ca052bb54ab0790a636c9b5f226502c73d547a25 # v5.4.0
+        with:
+          push: false
+          load: true
+          tags: discord-presence-api:check
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Image serves /healthz
+        run: |
+          docker run -d --name check -e ALLOWED_USER_IDS=1 -p 8080:8080 discord-presence-api:check
+          for _ in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:8080/healthz && break
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:8080/healthz
+          docker rm -f check
+
+      - name: Runtime image carries ffmpeg
+        # Animated nameplates fall back to the static plate without it.
+        run: docker run --rm --entrypoint sh discord-presence-api:check -c 'command -v ffmpeg'

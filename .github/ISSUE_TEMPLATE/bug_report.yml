@@ -1,0 +1,72 @@
+name: Bug report
+description: A card renders wrong, or the service does not behave
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Do not report security problems here.** Use the private advisory
+        link on the "New issue" page instead.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What did you see, and what did you expect instead?
+      placeholder: |
+        The nameplate is drawn behind the avatar instead of behind the name.
+    validations:
+      required: true
+
+  - type: input
+    id: url
+    attributes:
+      label: Card URL
+      description: >-
+        The full request, with your host replaced by `example.com`. The user ID
+        is public data, but remove it too if you would rather not share it.
+      placeholder: "https://example.com/v1/users/<id>/card.svg?layout=wide&maxActivities=2"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: deployment
+    attributes:
+      label: How do you run it
+      options:
+        - Docker / docker compose
+        - ghcr.io image
+        - Local (npm run dev)
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The image tag, or `git rev-parse --short HEAD` if you run from a branch.
+      placeholder: "latest"
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: |
+        The lines around the problem — not the whole file.
+        Docker: `docker compose logs --tail 100 discord-presence-api`
+      render: text
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched the existing issues.
+          required: true
+        - label: I replaced my host name in anything I pasted above.
+          required: true

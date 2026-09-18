@@ -1,0 +1,31 @@
+name: Feature request
+description: A card parameter, layout or field that is missing
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do
+      description: The outcome you want, not the implementation.
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would it look like
+      description: >-
+        For a card parameter, give the name and the values you would expect.
+      placeholder: "hideAvatar=true — drop the avatar entirely in the wide layout."
+    validations:
+      required: false
+
+  - type: input
+    id: source
+    attributes:
+      label: Where does the data come from
+      description: >-
+        Lanyard, dcdn.dstn.to, or somewhere else? Anything that needs a new
+        upstream host also needs a reason to widen the egress allowlist.
+    validations:
+      required: false
