@@ -414,6 +414,8 @@ const NAMEPLATE_PALETTES: Record<string, string> = {
   sky: "0, 128, 183",
 };
 
+const MASK = "linear-gradient(to right, rgba(0,0,0,0.3) calc(100% - 50px), rgb(0,0,0) 100%)";
+
 /**
  * Nameplate treatment taken from the production Glance widget: the collectible
  * product's `background_colors` as a 135° gradient, the artwork masked on top so
@@ -453,12 +455,19 @@ function Nameplate({
    * widget ends up doing the same thing by accident: its palette rule sits after
    * the gradient rule in the stylesheet, so the tint wins there too.
    */
+  /*
+   * Values taken from Discord's own member list, where the plate renders as:
+   *   background: linear-gradient(90deg, transparent 0%, rgba(0,128,183,.08) 20%,
+   *                               rgba(0,128,183,.08) 50%, rgba(0,128,183,.2) 100%)
+   * The tint is far subtler than it looks in the client — most of the colour
+   * impression comes from the artwork, not from the fill behind it.
+   */
   const rgb = plate.palette ? NAMEPLATE_PALETTES[plate.palette] : undefined;
   const background = rgb
-    ? `linear-gradient(135deg, rgba(${rgb}, 0.5) 0%, rgba(${rgb}, 0.85) 100%)`
+    ? `linear-gradient(90deg, transparent 0%, rgba(${rgb}, 0.08) 20%, rgba(${rgb}, 0.08) 50%, rgba(${rgb}, 0.2) 100%)`
     : plate.colors
-      ? `linear-gradient(135deg, ${plate.colors[0]} 0%, ${plate.colors[1]} 100%)`
-      : `rgba(${colors.dark ? "255, 255, 255" : "0, 0, 0"}, 0.1)`;
+      ? `linear-gradient(90deg, transparent 0%, ${plate.colors[0]}22 50%, ${plate.colors[1]}33 100%)`
+      : `rgba(${colors.dark ? "255, 255, 255" : "0, 0, 0"}, 0.08)`;
 
   return (
     <div
@@ -482,8 +491,10 @@ function Nameplate({
             inset: "0",
             display: "flex",
             overflow: "hidden",
-            WebkitMaskImage: "linear-gradient(to right, rgba(0,0,0,0.3) 58%, rgb(0,0,0) 76%)",
-            maskImage: "linear-gradient(to right, rgba(0,0,0,0.3) 58%, rgb(0,0,0) 76%)",
+            // Discord fades the art over a fixed 50px band at the right edge,
+            // not over a share of the width: rgba(0,0,0,.3) → opaque.
+            WebkitMaskImage: MASK,
+            maskImage: MASK,
           }}
         >
           <img
