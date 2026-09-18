@@ -696,6 +696,8 @@ interface Metrics {
   showSecondary: boolean;
   showBio: boolean;
   showConnections: boolean;
+  /** The handle line: only meaningful when the name above it differs. */
+  showUsername: boolean;
   identityHeight: number;
   /** Total height of the stacked activity rows, gaps included. */
   activityHeight: number;
@@ -718,6 +720,10 @@ function metricsFor(
   const showConnections =
     showProfile && params.showConnections && (payload.profile?.connectedAccounts.length ?? 0) > 0;
 
+  // Without the display name above it, the handle *is* the name — printing it
+  // twice is what cnrad avoids by tying the second line to showDisplayName.
+  const showUsername = params.showUsername && params.showDisplayName;
+
   const stacked =
     NAMEPLATE_HEIGHT +
     (showBadges ? BADGE_ROW : 0) +
@@ -738,6 +744,7 @@ function metricsFor(
     showSecondary: showActivity && !!selection.secondary,
     showBio: showProfile && params.layout === "banner" && !!payload.profile?.bio,
     showConnections,
+    showUsername,
     identityHeight: Math.max(stacked, 56),
     activityHeight,
   };
@@ -820,9 +827,9 @@ function Identity({
             ) : null}
             <PlatformIcons payload={payload} params={params} colors={colors} />
           </div>
-          {params.showUsername ? (
-            <Truncated style={{ color: colors.subtle, fontSize: "15px", fontWeight: 400 }}>
-              @{payload.user.username}
+          {metrics.showUsername ? (
+            <Truncated style={{ color: colors.text, fontSize: "0.95rem", fontWeight: 400 }}>
+              {payload.user.username}
               {params.showPronouns && payload.profile?.pronouns
                 ? ` · ${payload.profile.pronouns}`
                 : ""}

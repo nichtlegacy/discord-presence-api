@@ -197,7 +197,7 @@ Parameter names follow [cnrad/lanyard-profile-readme](https://github.com/cnrad/l
 | Parameter | Values | Default |
 |---|---|---|
 | `showDisplayName` | `true`, `false` | `true` |
-| `showUsername` | `true`, `false` | `true` |
+| `showUsername` | `true`, `false` — the plain handle below the display name; ignored when `showDisplayName=false`, where the handle already is the name | `true` |
 | `hideProfile` | `true`, `false` — activity only | `false` |
 | `hideStatus` | `true`, `false` — custom status text | `false` |
 | `hidePresence` | `true`, `false` — the status dot on the avatar | `false` |
