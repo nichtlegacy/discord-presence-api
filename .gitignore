@@ -16,3 +16,7 @@ Thumbs.db
 # Agent config
 .claude/
 .agent/
+
+# Local scratch: rendered previews and browser captures.
+.preview/
+.playwright-mcp/

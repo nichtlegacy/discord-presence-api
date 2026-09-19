@@ -70,7 +70,7 @@ export interface CardParams {
 const HEX = /^[0-9a-fA-F]{6}$/;
 const SNOWFLAKE = /^\d{17,20}$/;
 
-function choice<T extends string>(value: string | undefined, allowed: readonly T[], fallback: T): T {
+export function choice<T extends string>(value: string | undefined, allowed: readonly T[], fallback: T): T {
   return allowed.includes(value as T) ? (value as T) : fallback;
 }
 

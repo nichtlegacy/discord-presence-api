@@ -305,10 +305,21 @@ border. It sits in a row with them without a seam.
 
 | Parameter | Values | Default |
 |---|---|---|
+| `icon` | `bars`, `eye`, `pulse`, `trend`, `user`, `none` | `bars` |
 | `label` | text, max 32 chars | `Profile Views` |
 | `color` | hex without `#` — the fill | `5865f2` (Discord blurple) |
 | `textColor` | hex without `#` | `ffffff` |
 | `borderRadius` | `0`–`16` | `6` |
+
+The glyphs are drawn inline, not fetched, so a new one is a path in `ICONS` rather than a
+dependency. `none` drops the glyph and the 7px that follow it.
+
+[`DEFAULT_PARAMS`](#configuration) covers the badge as well as the card, so an instance can
+settle on one look without every embed repeating it:
+
+```bash
+DEFAULT_PARAMS=icon=pulse&label=Views
+```
 
 ```md
 [![Profile Views](https://discord-presence.example.com/v1/users/<id>/views.svg)](https://github.com/nichtlegacy/discord-presence-api)

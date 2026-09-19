@@ -12,7 +12,7 @@
  * `<text>` offset high would misplace the count.
  */
 import type { ReactNode } from "react";
-import { clampInt, color, plain } from "./params.ts";
+import { choice, clampInt, color, plain } from "./params.ts";
 
 /** shieldcn's stack, not the card's Century Gothic. */
 const BADGE_FONT =
@@ -29,7 +29,55 @@ const FONT_SIZE = 14;
 /** Discord blurple, the way shieldcn's `variant=branded` uses a brand's own colour. */
 const DEFAULT_FILL = "#5865f2";
 
+/**
+ * Glyphs, drawn rather than fetched. All stroked on a 24 viewBox so one set of
+ * stroke attributes covers them; `bars` carries a little more weight because
+ * three short strokes read lighter than a closed shape at 16px.
+ */
+const ICONS: Record<string, { paths: ReactNode; strokeWidth?: number }> = {
+  bars: {
+    paths: (
+      <>
+        <path d="M5 20v-6" />
+        <path d="M12 20V9" />
+        <path d="M19 20V4" />
+      </>
+    ),
+    strokeWidth: 2.6,
+  },
+  eye: {
+    paths: (
+      <>
+        <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z" />
+        <circle cx="12" cy="12" r="3" />
+      </>
+    ),
+  },
+  pulse: { paths: <path d="M2 12h5l2.5-7 4 14 2.5-7h6" /> },
+  trend: {
+    paths: (
+      <>
+        <path d="M3 17l6-6 4 4 7-7" />
+        <path d="M17 8h4v4" />
+      </>
+    ),
+  },
+  user: {
+    paths: (
+      <>
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
+      </>
+    ),
+  },
+};
+
+/** `none` drops the glyph and the gap that goes with it. */
+export const ICON_NAMES = [...Object.keys(ICONS), "none"] as const;
+export type IconName = (typeof ICON_NAMES)[number];
+
 export interface BadgeParams {
+  icon: IconName;
   fill: string;
   text: string;
   label: string;
@@ -42,6 +90,7 @@ export function parseBadgeParams(
 ): BadgeParams {
   const merged = { ...defaults, ...query };
   return {
+    icon: choice(merged.icon, ICON_NAMES, "bars"),
     fill: color(merged.color) ?? DEFAULT_FILL,
     text: color(merged.textColor) ?? "#ffffff",
     label: plain(merged.label, 32, "Profile Views"),
@@ -71,7 +120,10 @@ function textWidth(text: string, size: number): number {
   return Math.ceil(em * size);
 }
 
-function EyeIcon({ color: stroke }: { color: string }): ReactNode {
+function Icon({ name, color: stroke }: { name: IconName; color: string }): ReactNode {
+  const glyph = ICONS[name];
+  if (!glyph) return null;
+
   return (
     <svg
       // Parsed as XML: inside an XHTML subtree an <svg> without its own
@@ -82,22 +134,21 @@ function EyeIcon({ color: stroke }: { color: string }): ReactNode {
       viewBox="0 0 24 24"
       fill="none"
       stroke={stroke}
-      strokeWidth="2"
+      strokeWidth={glyph.strokeWidth ?? 2}
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z" />
-      <circle cx="12" cy="12" r="3" />
+      {glyph.paths}
     </svg>
   );
 }
 
 export function renderBadge(count: number, params: BadgeParams): ReactNode {
   const value = formatViews(count);
+  const hasIcon = params.icon !== "none";
   const width =
     PADDING_X * 2 +
-    ICON +
-    ICON_GAP +
+    (hasIcon ? ICON + ICON_GAP : 0) +
     TEXT_GAP +
     textWidth(params.label, FONT_SIZE) +
     textWidth(value, FONT_SIZE);
@@ -135,8 +186,10 @@ export function renderBadge(count: number, params: BadgeParams): ReactNode {
             overflow: "hidden",
           }}
         >
-          <EyeIcon color={params.text} />
-          <span style={{ marginLeft: `${ICON_GAP}px`, fontWeight: 500 }}>{params.label}</span>
+          <Icon name={params.icon} color={params.text} />
+          <span style={{ marginLeft: hasIcon ? `${ICON_GAP}px` : "0", fontWeight: 500 }}>
+            {params.label}
+          </span>
           <span style={{ marginLeft: `${TEXT_GAP}px`, fontWeight: 700 }}>{value}</span>
         </div>
       </foreignObject>

@@ -16,7 +16,9 @@ process.env.VIEWS_FILE = FILE;
 
 // Built output, like the other render tests: type stripping cannot load JSX.
 const { bump, views, flushNow } = await import("../dist/lib/views.js");
-const { renderBadge, parseBadgeParams, formatViews } = await import("../dist/render/badge.js");
+const { renderBadge, parseBadgeParams, formatViews, ICON_NAMES } = await import(
+  "../dist/render/badge.js"
+);
 
 test("counts are restored on boot, and non-numeric entries dropped", () => {
   assert.equal(views("1"), 5);
@@ -65,4 +67,23 @@ test("the badge matches shieldcn's geometry", () => {
 test("formatViews groups thousands", () => {
   assert.equal(formatViews(0), "0");
   assert.equal(formatViews(2867), "2,867");
+});
+
+test("every icon renders, and an unknown name falls back instead of blanking", () => {
+  for (const name of ICON_NAMES) {
+    const svg = renderToStaticMarkup(renderBadge(42, parseBadgeParams({ icon: name })));
+    const glyphs = (svg.match(/viewBox="0 0 24 24"/g) ?? []).length;
+    assert.equal(glyphs, name === "none" ? 0 : 1, name);
+    assert.match(svg, /42/);
+  }
+
+  assert.equal(parseBadgeParams({ icon: "nope" }).icon, "bars");
+});
+
+test("dropping the icon takes its gap with it", () => {
+  const widthOf = (icon: string) =>
+    Number(/width="(\d+)"/.exec(renderToStaticMarkup(renderBadge(1, parseBadgeParams({ icon }))))?.[1]);
+
+  // 16px glyph plus the 7px shieldcn leaves after it.
+  assert.equal(widthOf("bars") - widthOf("none"), 23);
 });
