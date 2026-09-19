@@ -1,9 +1,7 @@
 name: Publish Image
 
-# Every green CI run on a tracked branch publishes the image. Releases are not
-# wired up on purpose: the metadata action already tags each build with its
-# commit (`sha-<short>`), which is the immutable pin a rollback needs. A
-# semver-tagged build would be a second way to get the same artifact.
+# Every green CI run on a tracked branch publishes the image. Release tags stay
+# manual: each build already gets an immutable `sha-<short>` tag.
 on:
   workflow_run:
     workflows:
@@ -13,6 +11,12 @@ on:
     branches:
       - main
       - dev
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Additional image tag
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -24,7 +28,7 @@ concurrency:
 jobs:
   build:
     name: Build and Push
-    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -33,7 +37,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.sha || github.event.workflow_run.head_sha }}
 
       - name: Docker Login
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
@@ -52,8 +56,9 @@ jobs:
           images: ghcr.io/${{ github.repository }}
           tags: |
             type=sha
-            type=raw,value=dev,enable=${{ github.event.workflow_run.head_branch == 'dev' }}
-            type=raw,value=latest,enable=${{ github.event.workflow_run.head_branch == 'main' }}
+            type=raw,value=${{ inputs.tag }},enable=${{ github.event_name == 'workflow_dispatch' }}
+            type=raw,value=dev,enable=${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch == 'dev' }}
+            type=raw,value=latest,enable=${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch == 'main' }}
 
       - name: Build and push Docker images
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
