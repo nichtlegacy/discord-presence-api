@@ -98,6 +98,14 @@ const EXPECTED_HOST: Record<string, string> = {
   radio: "https://media.discordapp.net/external/",
 };
 
+test("Spotify covers are requested at the size the card draws them", () => {
+  // The id's prefix encodes the edge length: b273 is the 640px master at 142 KB,
+  // 1e02 the 300px variant at 40 KB — for a cover drawn at 72px.
+  const payload = payloadFor(FIXTURES.spotify!);
+  const large = payload.presence.activities[0]?.images.large ?? "";
+  assert.ok(large.includes("ab67616d00001e02"), `still the master: ${large}`);
+});
+
 for (const [name, activity] of Object.entries(FIXTURES)) {
   test(`${name}: artwork resolves to a known host`, () => {
     const payload = payloadFor(activity);

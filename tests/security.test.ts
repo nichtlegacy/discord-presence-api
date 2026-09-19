@@ -15,7 +15,7 @@ test("outbound requests are restricted to known hosts", () => {
 test("every documented asset format resolves to its own fixed host", () => {
   // Discord's presence docs: mp:, spotify:, twitch:, youtube: and plain app assets.
   assert.equal(
-    toAssetUrl("spotify:ab67616d0000b273b006ef", null, 160),
+    toAssetUrl("spotify:ab67616d0000b273b006ef", null, 640),
     "https://i.scdn.co/image/ab67616d0000b273b006ef",
   );
   assert.equal(
