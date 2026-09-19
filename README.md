@@ -176,7 +176,7 @@ Parameter names follow [cnrad/lanyard-profile-readme](https://github.com/cnrad/l
 
 ## Card parameters
 
-<details open>
+<details>
 <summary><strong>Appearance</strong></summary>
 
 | Parameter | Values | Default |
@@ -191,7 +191,7 @@ Parameter names follow [cnrad/lanyard-profile-readme](https://github.com/cnrad/l
 
 </details>
 
-<details open>
+<details>
 <summary><strong>Identity</strong></summary>
 
 | Parameter | Values | Default |
@@ -217,7 +217,7 @@ Parameter names follow [cnrad/lanyard-profile-readme](https://github.com/cnrad/l
 
 </details>
 
-<details open>
+<details>
 <summary><strong>Activity</strong></summary>
 
 | Parameter | Values | Default |
@@ -266,7 +266,10 @@ Only `card.svg` needs to be public. The JSON carries bio, pronouns and connected
 accounts, so keep `/v1/users/:id` on the internal network and let your own
 clients (dashboards, Glance widgets) reach the published port directly.
 
-A reverse proxy can enforce that. With Caddy:
+<details>
+<summary><strong>Caddy reverse proxy</strong></summary>
+
+A reverse proxy can enforce that:
 
 ```caddy
 discord-presence.example.com {
@@ -290,6 +293,8 @@ discord-presence.example.com {
 
 `TRUST_PROXY=true` only makes sense with a proxy that overwrites the header like
 this. Without it, leave the variable at `false`.
+
+</details>
 
 ## Configuration
 
