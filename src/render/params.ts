@@ -50,6 +50,8 @@ export interface CardParams {
   hideNameplate: boolean;
   /** Apply Nitro display-name colors and effects. */
   nameStyles: boolean;
+  /** Embed the Nitro typeface as well; costs 8–26 KB for the font file. */
+  nameFont: boolean;
   hideBanner: boolean;
   showPronouns: boolean;
   showConnections: boolean;
@@ -151,6 +153,7 @@ function parse(query: Record<string, string | undefined>): CardParams {
     hidePlatform: bool(query.hidePlatform),
     hideNameplate: bool(query.hideNameplate),
     nameStyles: bool(query.nameStyles, true),
+    nameFont: bool(query.nameFont, true),
     hideBanner: bool(query.hideBanner),
     showPronouns: bool(query.showPronouns),
     showConnections: bool(query.showConnections),

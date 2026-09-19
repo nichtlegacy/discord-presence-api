@@ -13,7 +13,8 @@
     "pretest": "npm run build",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "brands": "node scripts/generate-brands.mjs"
+    "brands": "node scripts/generate-brands.mjs",
+    "fonts": "node scripts/fetch-fonts.mjs"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",

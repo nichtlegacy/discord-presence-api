@@ -1,0 +1,47 @@
+{
+  "1": {
+    "family": "Bangers",
+    "file": "bangers.woff2",
+    "weight": 400
+  },
+  "2": {
+    "family": "BioRhyme",
+    "file": "biorhyme.woff2",
+    "weight": 700
+  },
+  "3": {
+    "family": "Cherry Bomb One",
+    "file": "cherry-bomb-one.woff2",
+    "weight": 400
+  },
+  "4": {
+    "family": "Chicle",
+    "file": "chicle.woff2",
+    "weight": 400
+  },
+  "6": {
+    "family": "MuseoModerno",
+    "file": "museomoderno.woff2",
+    "weight": 700
+  },
+  "7": {
+    "family": "Cinzel",
+    "file": "cinzel.woff2",
+    "weight": 700
+  },
+  "8": {
+    "family": "Pixelify Sans",
+    "file": "pixelify-sans.woff2",
+    "weight": 700
+  },
+  "9": {
+    "family": "Bree Serif",
+    "file": "bree-serif.woff2",
+    "weight": 400
+  },
+  "12": {
+    "family": "Zilla Slab",
+    "file": "zilla-slab.woff2",
+    "weight": 700
+  }
+}

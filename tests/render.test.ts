@@ -98,6 +98,30 @@ test("maxActivities stacks a second activity", () => {
   assert.ok(two.includes("Factorio") && two.includes("Be My Lover"));
 });
 
+test("the Nitro typeface travels inside the document", () => {
+  const styled: LanyardData = {
+    ...radio,
+    discord_user: {
+      ...user,
+      // font_id 12 is Zilla Slab, confirmed against Discord's own markup.
+      display_name_styles: { font_id: 12, effect_id: 2, colors: [16690792, 16350208] },
+    },
+  };
+
+  const withFont = card(styled);
+  assert.match(withFont, /@font-face\{font-family:'Zilla Slab'/, "no @font-face rule");
+  assert.ok(withFont.includes("data:font/woff2;base64,"), "font not inlined");
+  assert.ok(withFont.includes("font-family:&#x27;Zilla Slab&#x27;"), "family not applied");
+
+  // A webfont cannot be linked from an SVG behind an image proxy, so the only
+  // options are inlining it or leaving it out — never a reference.
+  assert.ok(!/src:url\(https?:/.test(withFont), "font referenced instead of embedded");
+
+  const without = card(styled, { nameFont: "false" });
+  assert.ok(!without.includes("@font-face"), "nameFont=false still embedded a font");
+  assert.ok(without.includes("#feae68"), "colours should survive without the font");
+});
+
 test("deployment defaults apply and requests still override them", () => {
   const defaults = { hideBadges: "true", theme: "light" };
   assert.equal(parseCardParams({}, defaults).theme, "light");

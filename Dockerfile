@@ -15,6 +15,8 @@ RUN apk add --no-cache ffmpeg
 COPY package*.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 COPY --from=build /app/dist ./dist
+# Nitro display-name fonts, embedded per card at render time.
+COPY assets ./assets
 USER node
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s \

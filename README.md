@@ -228,6 +228,7 @@ Parameter names follow [cnrad/lanyard-profile-readme](https://github.com/cnrad/l
 | `showPronouns` | `true`, `false` — off, they crowd the handle line | `false` |
 | `showConnections` | `true`, `false` — connected accounts as brand marks | `false` |
 | `nameStyles` | `true`, `false` — Nitro display-name colors and effects | `true` |
+| `nameFont` | `true`, `false` — embed the Nitro typeface (8–26 KB) | `true` |
 | `animated` | `true`, `false` — animated avatar | `true` |
 | `animatedDecoration` | `true`, `false` | `false` |
 | `animatedBanner` | `true`, `false` | `false` |
@@ -256,6 +257,8 @@ Unknown or malformed values fall back to the default — they are never passed t
 **Progress and timing.** An activity that reports both `timestamps.start` and `end` — Spotify, Apple Music, some games — is drawn with a progress bar and `position / length`. Open-ended activities such as a radio stream only carry a start, so they fall back to elapsed time. `hideTimestamp` removes both.
 
 **Connected accounts.** Brand marks are generated from the official [simple-icons](https://simpleicons.org) package into [`src/render/brands.ts`](src/render/brands.ts) (`npm run brands`) and inlined, so rendering never reaches an icon host. Xbox and Skype have no simple-icons entry any more and are skipped rather than approximated.
+
+**Nitro typefaces.** Discord styles display names with Google Fonts and reports the choice as `font_id`. A webfont cannot be linked from an SVG behind GitHub's image proxy, so the file is inlined as a data URI like every other asset — 8–26 KB depending on the family. The fonts live in `assets/fonts/` under the SIL Open Font License 1.1 (see `assets/fonts/LICENSES.md`), refreshed with `npm run fonts`. `nameFont=false` keeps the colours and effect but drops the file. Only `font_id` 12 is confirmed against Discord's markup; the rest follow the mapping the Glance widget uses, and an unknown id simply keeps the card font.
 
 **Animated collectibles.** Discord ships animated nameplates as `.webm` with an alpha channel, and a video never plays inside an SVG. An animated raster does, though — including in the static image context a README embed uses. So the video is transcoded to animated WebP once and inlined: at the size the plate is drawn that costs about 14 KB over the static render, against roughly 70 KB for the same frames as GIF. On by default, because the plate is the one part of the card meant to move and the transcode is cached for a day; `animatedNameplate=false` turns it off. Two details the obvious transcode gets wrong: the native VP9 decoder drops the alpha channel (hence `-c:v libvpx-vp9`), and animated WebP cannot store per-frame alpha at all — so the artwork is composited onto the card colour instead, which is why the transcode is cached per background. APNG would keep the alpha but costs ~237 KB against ~16 KB. This needs `ffmpeg`, which the container image installs — without it the card logs a warning once and falls back to the static plate.
 

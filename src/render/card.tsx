@@ -13,6 +13,7 @@ import type { CardImages } from "./images.ts";
 import { BRAND_PATHS, BRAND_VIEWBOX } from "./brands.ts";
 import type { Selection } from "./select.ts";
 import { baseColor, gradientStops, mix } from "./theme.ts";
+import { embeddedFont } from "./fonts.ts";
 
 /**
  * cnrad's stack, verbatim. There is no webfont involved: Century Gothic renders
@@ -62,11 +63,9 @@ const ACTIVITY_LABELS: Record<string, string> = {
 };
 
 /**
- * Nitro display-name fonts are webfonts. An SVG behind GitHub's proxy cannot
- * load one, and substituting a generic family (fantasy, cursive) produces a
- * different wrong typeface rather than an approximation — so only the colors
- * and effects are applied. Embedding the real font files is the upgrade path.
- * ponytail: colors+effects only, embed base64 subsets if the font matters
+ * Nitro display-name styling: colours, effect and the actual typeface. The font
+ * file rides along in the document (see fonts.ts) because a webfont cannot be
+ * linked from an SVG behind GitHub's image proxy.
  */
 
 interface Palette {
@@ -117,7 +116,8 @@ function nameStyle(user: NormalizedUser, params: CardParams, colors: Palette): C
 
   const color1 = styles.colors[0]!;
   const color2 = styles.colors[1] ?? color1;
-  const family: CSSProperties = {};
+  const font = params.nameFont ? embeddedFont(styles.fontId) : null;
+  const family: CSSProperties = font ? { fontFamily: `'${font.family}'` } : {};
 
   const gradientText = (angle: string, mid: string): CSSProperties => ({
     ...family,
@@ -1083,6 +1083,10 @@ export function renderCard(
   selection: Selection,
 ): ReactNode {
   const colors = palette(params, payload);
+  const nameFont =
+    params.nameStyles && params.nameFont && payload.user.displayNameStyles
+      ? embeddedFont(payload.user.displayNameStyles.fontId)
+      : null;
   const { component: Layout } = LAYOUTS[params.layout];
   const metrics = metricsFor(payload, params, images, selection);
   const { width, height } = dimensions(params, metrics);
@@ -1113,6 +1117,9 @@ export function renderCard(
             overflow: "hidden",
           }}
         >
+          {/* The rule has to live inside the XHTML subtree: declared on the SVG
+              element it does not reach the foreignObject content. */}
+          {nameFont ? <style>{nameFont.face}</style> : null}
           <Layout
             payload={payload}
             params={params}
