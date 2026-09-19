@@ -27,6 +27,11 @@ export const ALLOWED_HOSTS = new Set([
   "media.discordapp.net",
   // Collectible metadata (nameplate gradient colors); unauthenticated, fixed path.
   "discord.com",
+  // Activity artwork that Discord references but does not host: Spotify covers,
+  // Twitch stream previews, YouTube thumbnails. Fixed hosts, validated paths.
+  "i.scdn.co",
+  "static-cdn.jtvnw.net",
+  "i.ytimg.com",
 ]);
 
 export const config = {

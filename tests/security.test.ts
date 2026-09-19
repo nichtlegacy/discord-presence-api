@@ -12,6 +12,36 @@ test("outbound requests are restricted to known hosts", () => {
   assert.throws(() => assertAllowedUrl("file:///etc/passwd"), UpstreamError);
 });
 
+test("every documented asset format resolves to its own fixed host", () => {
+  // Discord's presence docs: mp:, spotify:, twitch:, youtube: and plain app assets.
+  assert.equal(
+    toAssetUrl("spotify:ab67616d0000b273b006ef", null, 160),
+    "https://i.scdn.co/image/ab67616d0000b273b006ef",
+  );
+  assert.equal(
+    toAssetUrl("youtube:dQw4w9WgXcQ", null, 160),
+    "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+  );
+  assert.equal(
+    toAssetUrl("twitch:discord", null, 160),
+    "https://static-cdn.jtvnw.net/previews-ttv/live_user_discord-160x160.jpg",
+  );
+  assert.ok(
+    toAssetUrl("mp:attachments/1/2/cover.png", null, 160)?.startsWith(
+      "https://media.discordapp.net/attachments/1/2/cover.png",
+    ),
+  );
+});
+
+test("malformed asset identifiers are dropped, not patched into a URL", () => {
+  // The part after the prefix comes from whoever sets the presence.
+  assert.equal(toAssetUrl("spotify:../../etc/passwd", null, 160), null);
+  assert.equal(toAssetUrl("twitch:evil/../x", null, 160), null);
+  assert.equal(toAssetUrl("youtube:id?x=1", null, 160), null);
+  assert.equal(toAssetUrl("mp:../secret", null, 160), null);
+  assert.equal(toAssetUrl("spotify:id#frag", null, 160), null);
+});
+
 test("activity assets never resolve to an attacker-chosen host", () => {
   // A Rich Presence controls this string; only the proxy form may come out.
   const proxied = toAssetUrl("mp:external/hash/https/evil.example/x.png", "1", 160);
