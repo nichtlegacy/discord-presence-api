@@ -285,13 +285,19 @@ the nameplate follow what Discord itself shows.
 
 ## Profile views
 
+<div align="center">
+
+<img alt="Profile views badge" src="https://discord-presence.nichtlegacy.com/v1/users/400672307833733121/views.svg">
+
+<sub>A live render. The number moves while you read this page.</sub>
+
+</div>
+
 Off by default (`ENABLE_VIEWS=true`). It is the only part of the service that writes
 anything, and it needs a writable `/data` — compose mounts a named volume for it and the
-rest of the container stays read-only.
-
-```md
-![Profile views](https://discord-presence.example.com/v1/users/<id>/views.svg)
-```
+rest of the container stays read-only. The route also has to be allowed through the reverse
+proxy; the [Caddy block](#endpoints) above lets `card.svg` and `views.svg` past and keeps
+the JSON in.
 
 Shaped like a [shieldcn](https://shieldcn.dev) badge, measured off their output rather than
 guessed: 32px tall, 6px corners, 12px padding, a 16px logo, 14px text, one solid fill and no
@@ -323,6 +329,16 @@ the same thing about its own numbers.
 The one thing that has to be right is the cache header. Camo caches per URL, so anything
 cacheable would freeze the count at whatever the first fetch saw. `views.svg` answers with
 `max-age=0, no-cache, no-store, must-revalidate` and no `ETag` — the recipe komarev uses.
+
+Behind a CDN, confirm it honours that header instead of caching by file extension: `.svg`
+sits on Cloudflare's default-cacheable list, and a cached badge counts once per edge node
+rather than once per reader. Cloudflare does respect `no-store` and answers
+`cf-cache-status: BYPASS` — worth checking once before trusting the number.
+
+```console
+$ curl -sSI https://discord-presence.example.com/v1/users/<id>/views.svg | grep -i cf-cache-status
+cf-cache-status: BYPASS
+```
 
 That header is also why the counter stays its own route and never moves into the card: the
 card is cached for `PRESENCE_TTL` seconds, so it could only ever register one hit per
