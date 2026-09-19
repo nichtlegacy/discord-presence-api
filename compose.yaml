@@ -10,6 +10,13 @@ services:
       # own clients (dashboard, Glance) can use this port directly on the LAN.
       - "${HOST_PORT:-9242}:8080"
 
+    # Everything from .env reaches the container: the tuning knobs (TTLs, rate
+    # limit, timeouts) would otherwise be silently ignored, since the explicit
+    # list below only covers what a minimal deployment needs.
+    env_file:
+      - path: .env
+        required: false
+
     environment:
       # Without this the service answers 403 to everything.
       ALLOWED_USER_IDS: ${ALLOWED_USER_IDS}
