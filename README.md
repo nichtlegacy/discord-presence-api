@@ -11,7 +11,7 @@
 <img alt="Docker GHCR" src="https://img.shields.io/badge/Docker-GHCR-2496ED?logo=docker&logoColor=white">
 <a href="LICENSE"><img alt="License MIT" src="https://img.shields.io/badge/License-MIT-22C55E"></a>
 
-[Requirements](#requirements) · [Quick start](#quick-start) · [Embedding](#embedding-a-card) · [Parameters](#card-parameters) · [Configuration](#configuration) · [Security](#security) · [License](#license)
+[Examples](#customization-examples) · [Requirements](#requirements) · [Quick start](#quick-start) · [Embedding](#embedding-a-card) · [Parameters](#card-parameters) · [Configuration](#configuration) · [Security](#security) · [License](#license)
 
 <br>
 
@@ -45,6 +45,23 @@ What the merge makes possible beyond a Lanyard-only renderer:
 - **The profile gradient** as an optional card background.
 - **Banner, bio, pronouns and connected accounts** for layouts that want them.
 - **Lanyard KV** passed through in `meta.kv`.
+
+## Customization examples
+
+<details>
+<summary><strong>Compare common card options</strong></summary>
+
+The previews use the compact `wide` layout so each option can be compared side by side. Parameters can be combined freely.
+
+| Option | Variant A | Variant B |
+|---|---|---|
+| **Theme** | <img src="https://discord-presence.nichtlegacy.com/v1/users/400672307833733121/card.svg?layout=wide&theme=dark&profileGradient=false" alt="Dark Discord presence card" width="350"><br>`theme=dark` | <img src="https://discord-presence.nichtlegacy.com/v1/users/400672307833733121/card.svg?layout=wide&theme=light&profileGradient=false" alt="Light Discord presence card" width="350"><br>`theme=light` |
+| **Profile gradient** | <img src="https://discord-presence.nichtlegacy.com/v1/users/400672307833733121/card.svg?layout=wide&profileGradient=true" alt="Discord presence card with profile gradient" width="350"><br>`profileGradient=true` | <img src="https://discord-presence.nichtlegacy.com/v1/users/400672307833733121/card.svg?layout=wide&profileGradient=false" alt="Discord presence card without profile gradient" width="350"><br>`profileGradient=false` |
+| **Badges** | <img src="https://discord-presence.nichtlegacy.com/v1/users/400672307833733121/card.svg?layout=wide&hideBadges=false" alt="Discord presence card with badges" width="350"><br>`hideBadges=false` | <img src="https://discord-presence.nichtlegacy.com/v1/users/400672307833733121/card.svg?layout=wide&hideBadges=true" alt="Discord presence card without badges" width="350"><br>`hideBadges=true` |
+| **Username** | <img src="https://discord-presence.nichtlegacy.com/v1/users/400672307833733121/card.svg?layout=wide&showUsername=true" alt="Discord presence card with username" width="350"><br>`showUsername=true` | <img src="https://discord-presence.nichtlegacy.com/v1/users/400672307833733121/card.svg?layout=wide&showUsername=false" alt="Discord presence card without username" width="350"><br>`showUsername=false` |
+| **Nameplate** | <img src="https://discord-presence.nichtlegacy.com/v1/users/400672307833733121/card.svg?layout=wide&hideNameplate=false" alt="Discord presence card with nameplate" width="350"><br>`hideNameplate=false` | <img src="https://discord-presence.nichtlegacy.com/v1/users/400672307833733121/card.svg?layout=wide&hideNameplate=true" alt="Discord presence card without nameplate" width="350"><br>`hideNameplate=true` |
+
+</details>
 
 ## Requirements
 
