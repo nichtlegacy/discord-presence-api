@@ -168,7 +168,7 @@ Three layouts, picked with `layout`:
 | Layout | Size | Shape |
 |---|---|---|
 | `card` | 400×218 | identity on top, activity below — the familiar widget |
-| `wide` | 700×88 | one row, fits under a README heading |
+| `wide` | 700×88, 338 wide without activity | one row, fits under a README heading |
 | `banner` | 500×320 | profile banner, nameplate, bio, activity |
 
 For a card that follows the reader's GitHub theme, request both and let the browser choose:
@@ -202,6 +202,7 @@ Parameter names follow [cnrad/lanyard-profile-readme](https://github.com/cnrad/l
 | Parameter | Values | Default |
 |---|---|---|
 | `layout` | `card` (400×218), `wide` (700×88), `banner` (500×320) | `card` |
+| | `hideActivity=true` shrinks `wide` to 338 — see [Behavior notes](#behavior-notes) | |
 | `theme` | `dark`, `light` | `dark` |
 | `bg` | hex without `#` | theme background |
 | `accent` | hex without `#` | profile accent color |
@@ -257,6 +258,11 @@ Unknown or malformed values fall back to the default — they are never passed t
 ### Behavior notes
 
 **Progress and timing.** An activity that reports both `timestamps.start` and `end` — Spotify, Apple Music, some games — is drawn with a progress bar and `position / length`. Open-ended activities such as a radio stream only carry a start, so they fall back to elapsed time. `hideTimestamp` removes both.
+
+**The wide layout without activity.** `hideActivity=true` (or `whenNotUsed` while nothing is
+running) leaves the right half of the wide card empty, so the divider and the 700px width go
+with it: the card collapses to 338px around the identity alone. Every other layout stacks
+vertically and already shrank by height, which is why only this one needed the extra case.
 
 **Connected accounts.** Brand marks are generated from the official [simple-icons](https://simpleicons.org) package into [`src/render/brands.ts`](src/render/brands.ts) (`npm run brands`) and inlined, so rendering never reaches an icon host. Xbox and Skype have no simple-icons entry any more and are skipped rather than approximated.
 

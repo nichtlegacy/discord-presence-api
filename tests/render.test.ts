@@ -128,3 +128,21 @@ test("deployment defaults apply and requests still override them", () => {
   assert.equal(parseCardParams({ theme: "dark" }, defaults).theme, "dark");
   assert.equal(parseCardParams({}, defaults).hideBadges, true);
 });
+
+test("the wide layout drops its right half when there is no activity to show", () => {
+  const full = card(spotify, { layout: "wide" });
+  const compact = card(spotify, { layout: "wide", hideActivity: "true" });
+
+  const widthOf = (svg: string) => Number(/<svg[^>]*width="(\d+)"/.exec(svg)?.[1]);
+  assert.equal(widthOf(full), 700);
+  assert.equal(widthOf(compact), 338);
+
+  // The divider needs something on both sides of it.
+  const dividers = (svg: string) => (svg.match(/border-left:solid/g) ?? []).length;
+  assert.equal(dividers(full), 1);
+  assert.equal(dividers(compact), 0);
+  assert.ok(!compact.includes("Dirrty"), "the activity must be gone, not just unlabelled");
+
+  // Activity only, no profile: still the full width, nothing to shrink to.
+  assert.equal(widthOf(card(spotify, { layout: "wide", hideProfile: "true" })), 700);
+});

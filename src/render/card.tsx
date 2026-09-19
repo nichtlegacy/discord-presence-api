@@ -46,6 +46,17 @@ const BIO_ROW = 18;
 const CONNECTION_ROW = 22;
 /** Stacked activities after the first are drawn smaller. */
 const SECONDARY_ART = 52;
+/**
+ * The wide layout's identity half, spelled out because it is the one card whose
+ * width is not fixed: with the activity switched off there is nothing to the
+ * right of the divider, and 700px of empty space is not a card.
+ */
+const WIDE_PADDING_X = CARD_PADDING + 4;
+const WIDE_AVATAR = 52;
+const WIDE_IDENTITY_TEXT = 232;
+/** Between the avatar and the text column, in every layout. */
+const AVATAR_GAP = 14;
+const WIDE_COMPACT = WIDE_PADDING_X * 2 + WIDE_AVATAR + AVATAR_GAP + WIDE_IDENTITY_TEXT;
 /** cnrad separates sections with a hairline instead of framing the card. */
 const HAIRLINE = (dark: boolean) => `solid 0.5px ${dark ? "hsl(0, 0%, 100%, 10%)" : "hsl(0, 0%, 0%, 10%)"}`;
 
@@ -762,7 +773,7 @@ function Identity({
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
-        gap: "14px",
+        gap: `${AVATAR_GAP}px`,
         height: `${metrics.identityHeight}px`,
       }}
     >
@@ -919,23 +930,29 @@ function WideLayout(props: LayoutProps) {
         flexDirection: "row",
         alignItems: "center",
         gap: "18px",
-        padding: `${CARD_PADDING}px ${CARD_PADDING + 4}px`,
+        padding: `${CARD_PADDING}px ${WIDE_PADDING_X}px`,
         width: "100%",
       }}
     >
       {metrics.showProfile ? (
-        <>
-          <Identity {...props} width={232} avatarSize={52} />
-          <div
-            style={{
-              width: "0px",
-              height: `${metrics.identityHeight - 8}px`,
-              borderLeft: HAIRLINE(colors.dark),
-              display: "flex",
-              flexShrink: 0,
-            }}
-          />
-        </>
+        <Identity
+          {...props}
+          width={WIDE_IDENTITY_TEXT}
+          avatarSize={WIDE_AVATAR}
+        />
+      ) : null}
+
+      {/* A divider needs something on both sides of it. */}
+      {metrics.showProfile && metrics.showActivity ? (
+        <div
+          style={{
+            width: "0px",
+            height: `${metrics.identityHeight - 8}px`,
+            borderLeft: HAIRLINE(colors.dark),
+            display: "flex",
+            flexShrink: 0,
+          }}
+        />
       ) : null}
 
       {metrics.showActivity ? (
@@ -1060,7 +1077,8 @@ function dimensions(params: CardParams, metrics: Metrics): { width: number; heig
       metrics.showProfile ? metrics.identityHeight : 0,
       metrics.showActivity ? 56 : 0,
     );
-    return { width, height: tallest + CARD_PADDING * 2 };
+    const compact = metrics.showProfile && !metrics.showActivity;
+    return { width: compact ? WIDE_COMPACT : width, height: tallest + CARD_PADDING * 2 };
   }
   if (params.layout === "banner") {
     const bannerHeight = params.hideBanner ? 0 : 90;
