@@ -81,6 +81,6 @@ jobs:
           curl -fsS http://127.0.0.1:8080/healthz
           docker rm -f check
 
-      - name: Runtime image carries ffmpeg
+      - name: Runtime image carries the VP9 alpha decoder
         # Animated nameplates fall back to the static plate without it.
-        run: docker run --rm --entrypoint sh discord-presence-api:check -c 'command -v ffmpeg'
+        run: docker run --rm --entrypoint sh discord-presence-api:check -c 'ffmpeg -hide_banner -decoders 2>/dev/null | grep -q libvpx-vp9'

@@ -16,6 +16,7 @@ import { fetchImageDataUri } from "../lib/http.ts";
 import type { PresencePayload } from "../lib/types.ts";
 import type { CardParams } from "./params.ts";
 import type { Selection } from "./select.ts";
+import { baseColor } from "./theme.ts";
 
 const imageCache = new TtlCache<string>(256);
 
@@ -46,7 +47,7 @@ async function nameplateImage(payload: PresencePayload, params: CardParams): Pro
   const plate = payload.user.nameplate;
   if (!plate) return null;
   if (params.animatedNameplate && plate.video) {
-    const animated = await animatedNameplate(plate.video);
+    const animated = await animatedNameplate(plate.video, baseColor(params, payload));
     if (animated) return animated;
   }
   return inline(plate.image);

@@ -21,10 +21,29 @@
  * before it becomes part of a URL. The host is never taken from the input.
  */
 const SPOTIFY_ID = /^[A-Za-z0-9]{1,64}$/;
+/**
+ * Spotify encodes the edge length in the image id's prefix. Requesting the
+ * 640px master for a 72px cover costs 142 KB against 40 KB for the 300px one
+ * and 3 KB for the thumbnail — more than the rest of the card put together.
+ */
+const SPOTIFY_SIZES: Array<{ prefix: string; edge: number }> = [
+  { prefix: "ab67616d00004851", edge: 64 },
+  { prefix: "ab67616d00001e02", edge: 300 },
+  { prefix: "ab67616d0000b273", edge: 640 },
+];
 const TWITCH_USER = /^[A-Za-z0-9_]{1,32}$/;
 const YOUTUBE_ID = /^[A-Za-z0-9_-]{1,24}$/;
 /** Media-proxy paths are segment lists; no traversal, no query, no host. */
 const MP_PATH = /^[A-Za-z0-9._~\-/]{1,512}$/;
+
+/** Swaps the size prefix for the smallest variant that still covers the render. */
+function spotifyAtSize(id: string, size: number): string {
+  const current = SPOTIFY_SIZES.find((entry) => id.startsWith(entry.prefix));
+  if (!current) return id;
+  // `size` is already the request size, twice what the card draws.
+  const wanted = SPOTIFY_SIZES.find((entry) => entry.edge >= size) ?? current;
+  return wanted.edge < current.edge ? `${wanted.prefix}${id.slice(current.prefix.length)}` : id;
+}
 
 export function toAssetUrl(
   asset: string | null | undefined,
@@ -35,7 +54,7 @@ export function toAssetUrl(
 
   if (asset.startsWith("spotify:")) {
     const id = asset.slice(8);
-    return SPOTIFY_ID.test(id) ? `https://i.scdn.co/image/${id}` : null;
+    return SPOTIFY_ID.test(id) ? `https://i.scdn.co/image/${spotifyAtSize(id, size)}` : null;
   }
 
   if (asset.startsWith("twitch:")) {

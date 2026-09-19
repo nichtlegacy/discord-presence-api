@@ -12,6 +12,7 @@ import type { CardParams } from "./params.ts";
 import type { CardImages } from "./images.ts";
 import { BRAND_PATHS, BRAND_VIEWBOX } from "./brands.ts";
 import type { Selection } from "./select.ts";
+import { baseColor, gradientStops, mix } from "./theme.ts";
 
 /**
  * cnrad's stack, verbatim. There is no webfont involved: Century Gothic renders
@@ -68,17 +69,6 @@ const ACTIVITY_LABELS: Record<string, string> = {
  * ponytail: colors+effects only, embed base64 subsets if the font matters
  */
 
-/** Precomputed instead of CSS color-mix(), which not every SVG renderer supports. */
-function mix(color: string, target: string, amount: number): string {
-  const parse = (value: string) => [1, 3, 5].map((i) => Number.parseInt(value.slice(i, i + 2), 16));
-  const [r1 = 0, g1 = 0, b1 = 0] = parse(color);
-  const [r2 = 0, g2 = 0, b2 = 0] = parse(target);
-  const blend = (a: number, b: number) => Math.round(a * (1 - amount) + b * amount);
-  return `#${[blend(r1, r2), blend(g1, g2), blend(b1, b2)]
-    .map((c) => c.toString(16).padStart(2, "0"))
-    .join("")}`;
-}
-
 interface Palette {
   /** Flat colour behind the card, used where a gradient cannot be drawn. */
   base: string;
@@ -99,23 +89,16 @@ function palette(params: CardParams, payload: PresencePayload): Palette {
   const base = dark ? "#1a1c1f" : "#ffffff";
 
   // The Nitro profile gradient, when asked for, replaces the flat background.
-  // Profile colors are picked for a Discord card, not for white text on top of
-  // them — mixing them toward the dark base keeps the hue but restores contrast.
   const gradient = payload.profile?.themeColors;
-  const tinted = gradient
-    ? [mix(gradient[0], "#101114", 0.28), mix(gradient[1], "#101114", 0.52)]
-    : null;
+  const tinted = gradientStops(payload);
   const background =
     params.bg ??
     (params.profileGradient && tinted
       ? `linear-gradient(135deg, ${tinted[0]} 0%, ${tinted[1]} 100%)`
       : base);
 
-  const flatBase =
-    params.bg ?? (params.profileGradient && tinted ? tinted[0]! : base);
-
   return {
-    base: flatBase,
+    base: baseColor(params, payload),
     background,
     surface: params.profileGradient && gradient ? "rgba(0,0,0,0.32)" : dark ? "#25282c" : "#f2f3f5",
     text: dark || params.profileGradient ? "#f2f3f5" : "#111214",
@@ -406,12 +389,12 @@ function Badges({ images, size = 20 }: { images: CardImages; size?: number }) {
  * a .webm, so the static render is used and tinted with the product gradient.
  */
 /**
- * Palette colors per collectible. Discord names the palette but does not publish
- * its color, so these are grounded in the Glance widget's stylesheet.
+ * Palette colours per collectible, read off Discord's own member list in both
+ * themes — the client swaps the tint, it is not one colour at two opacities.
  * ponytail: one known palette, extend the map as plates actually show up
  */
-const NAMEPLATE_PALETTES: Record<string, string> = {
-  sky: "0, 128, 183",
+const NAMEPLATE_PALETTES: Record<string, { dark: string; light: string }> = {
+  sky: { dark: "0, 128, 183", light: "86, 204, 255" },
 };
 
 const MASK = "linear-gradient(to right, rgba(0,0,0,0.3) calc(100% - 50px), rgb(0,0,0) 100%)";
@@ -457,12 +440,13 @@ function Nameplate({
    */
   /*
    * Values taken from Discord's own member list, where the plate renders as:
-   *   background: linear-gradient(90deg, transparent 0%, rgba(0,128,183,.08) 20%,
-   *                               rgba(0,128,183,.08) 50%, rgba(0,128,183,.2) 100%)
+   *   background: linear-gradient(90deg, transparent 0%, rgba(86,204,255,.08) 20%,
+   *                               rgba(86,204,255,.08) 50%, rgba(86,204,255,.2) 100%)
    * The tint is far subtler than it looks in the client — most of the colour
    * impression comes from the artwork, not from the fill behind it.
    */
-  const rgb = plate.palette ? NAMEPLATE_PALETTES[plate.palette] : undefined;
+  const palette = plate.palette ? NAMEPLATE_PALETTES[plate.palette] : undefined;
+  const rgb = palette ? (colors.dark ? palette.dark : palette.light) : undefined;
   const background = rgb
     ? `linear-gradient(90deg, transparent 0%, rgba(${rgb}, 0.08) 20%, rgba(${rgb}, 0.08) 50%, rgba(${rgb}, 0.2) 100%)`
     : plate.colors

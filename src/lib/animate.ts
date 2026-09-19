@@ -24,8 +24,9 @@ const run = promisify(execFile);
 
 const cache = new TtlCache<string | null>(16);
 
-/** Rendered plate width; frames beyond it are wasted bytes. */
+/** Rendered plate size; frames beyond it are wasted bytes. */
 const TARGET_WIDTH = 320;
+const TARGET_HEIGHT = 60;
 const FPS = 12;
 const TRANSCODE_TIMEOUT_MS = 15_000;
 const MAX_OUTPUT_BYTES = 1_500_000;
@@ -44,7 +45,10 @@ async function hasFfmpeg(): Promise<boolean> {
   return ffmpegAvailable;
 }
 
-async function transcode(video: Uint8Array): Promise<string | null> {
+/** Only a hex colour ever reaches the filter graph. */
+const HEX = /^#[0-9a-fA-F]{6}$/;
+
+async function transcode(video: Uint8Array, background: string): Promise<string | null> {
   // A temp directory rather than pipes: the matroska demuxer wants to seek.
   const dir = await mkdtemp(join(tmpdir(), "plate-"));
   const input = join(dir, "in.webm");
@@ -53,12 +57,29 @@ async function transcode(video: Uint8Array): Promise<string | null> {
     await writeFile(input, video);
     // Fixed argument list, no shell: nothing here is user-controlled anyway,
     // but the input path is the only variable and it never reaches a shell.
+    /*
+     * Two things the obvious command gets wrong:
+     *
+     * 1. The native VP9 decoder reports yuv420p and silently drops the alpha
+     *    channel the plate needs — `-c:v libvpx-vp9` decodes it as yuva420p.
+     * 2. Animated WebP cannot store per-frame alpha (libwebp writes the frames
+     *    opaque), so the artwork is composited onto the card colour here. On a
+     *    light card the alternative is a grey slab; APNG would preserve alpha
+     *    but costs ~237 KB against ~16 KB for this.
+     */
+    const colour = HEX.test(background) ? background.replace("#", "0x") : "0x1a1c1f";
     await run(
       "ffmpeg",
       [
         "-v", "error",
+        "-c:v", "libvpx-vp9",
         "-i", input,
-        "-vf", `scale=${TARGET_WIDTH}:-1:flags=lanczos,fps=${FPS}`,
+        "-filter_complex",
+        // The colour source defaults to 25 fps; without pinning it the overlay
+        // emits 25 frames per second regardless of the video and the file triples.
+        `color=c=${colour}:s=${TARGET_WIDTH}x${TARGET_HEIGHT}:r=${FPS}[bg];` +
+          `[0:v]scale=${TARGET_WIDTH}:${TARGET_HEIGHT}:flags=lanczos,fps=${FPS}[fg];` +
+          `[bg][fg]overlay=shortest=1`,
         "-loop", "0",
         "-lossless", "0",
         "-q:v", "55",
@@ -80,13 +101,19 @@ async function transcode(video: Uint8Array): Promise<string | null> {
   }
 }
 
-/** Returns a data URI for the animated plate, or null to fall back to the static one. */
-export async function animatedNameplate(videoUrl: string): Promise<string | null> {
+/**
+ * Returns a data URI for the animated plate, or null to fall back to the static
+ * one. Cached per background, since the colour is baked into the frames.
+ */
+export async function animatedNameplate(
+  videoUrl: string,
+  background: string,
+): Promise<string | null> {
   if (!(await hasFfmpeg())) return null;
 
-  return cache.wrap(videoUrl, config.ttl.collectible, async () => {
+  return cache.wrap(`${videoUrl}|${background}`, config.ttl.collectible, async () => {
     try {
-      return await transcode(await fetchBytes(videoUrl, "video/webm"));
+      return await transcode(await fetchBytes(videoUrl, "video/webm"), background);
     } catch {
       return null;
     }
