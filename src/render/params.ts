@@ -79,13 +79,13 @@ function bool(value: string | undefined, fallback = false): boolean {
   return value === "true" || value === "1";
 }
 
-function color(value: string | undefined): string | null {
+export function color(value: string | undefined): string | null {
   if (!value) return null;
   const normalized = value.startsWith("#") ? value.slice(1) : value;
   return HEX.test(normalized) ? `#${normalized}` : null;
 }
 
-function clampInt(value: string | undefined, min: number, max: number, fallback: number): number {
+export function clampInt(value: string | undefined, min: number, max: number, fallback: number): number {
   // cnrad accepts CSS lengths like "10px"; take the leading number and clamp it.
   const parsed = Number.parseInt(String(value ?? ""), 10);
   if (!Number.isFinite(parsed)) return fallback;
@@ -93,7 +93,7 @@ function clampInt(value: string | undefined, min: number, max: number, fallback:
 }
 
 /** Free text is capped and stripped of control characters before it reaches the card. */
-function plain(value: string | undefined, max: number, fallback: string): string {
+export function plain(value: string | undefined, max: number, fallback: string): string {
   if (!value) return fallback;
   const cleaned = value.replace(/\p{Cc}/gu, "").trim();
   return cleaned ? cleaned.slice(0, max) : fallback;

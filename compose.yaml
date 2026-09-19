@@ -25,10 +25,17 @@ services:
       TRUST_PROXY: ${TRUST_PROXY:-true}
       # Card defaults for this instance; request parameters still win.
       DEFAULT_PARAMS: ${DEFAULT_PARAMS:-}
+      # Profile view counting. The only feature that writes anything — leaving
+      # it off keeps the volume below unused.
+      ENABLE_VIEWS: ${ENABLE_VIEWS:-false}
       PORT: "8080"
 
-    # No secrets, no state, nothing to write — except the scratch space ffmpeg
-    # needs while transcoding animated collectibles.
+    volumes:
+      # View counts, and nothing else. Harmless with ENABLE_VIEWS=false.
+      - views:/data
+
+    # No secrets, nothing to write — except the view counter above and the
+    # scratch space ffmpeg needs while transcoding animated collectibles.
     read_only: true
     tmpfs:
       - /tmp:size=64m
@@ -44,3 +51,6 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+
+volumes:
+  views:

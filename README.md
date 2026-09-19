@@ -96,6 +96,8 @@ Set the ones you always want with [`DEFAULT_PARAMS`](#configuration) so the inst
 
 One thing no parameter controls: GitHub proxies README images through camo and caches them, so a card that was public for a minute may stay visible for longer than the presence behind it.
 
+The view counter stores nothing but a number per user id — no addresses, no agents, no timestamps. It could not store more if it wanted to: camo replaces the client entirely.
+
 ## How it works
 
 ```mermaid
@@ -275,15 +277,61 @@ Unknown or malformed values fall back to the default — they are never passed t
 That is why animated banners and decorations stay opt-in, while the avatar and
 the nameplate follow what Discord itself shows.
 
+## Profile views
+
+Off by default (`ENABLE_VIEWS=true`). It is the only part of the service that writes
+anything, and it needs a writable `/data` — compose mounts a named volume for it and the
+rest of the container stays read-only.
+
+```md
+![Profile views](https://discord-presence.example.com/v1/users/<id>/views.svg)
+```
+
+Shaped like a [shieldcn](https://shieldcn.dev) badge, measured off their output rather than
+guessed: 32px tall, 6px corners, 12px padding, a 16px logo, 14px text, one solid fill and no
+border. It sits in a row with them without a seam.
+
+| Parameter | Values | Default |
+|---|---|---|
+| `label` | text, max 32 chars | `Profile Views` |
+| `color` | hex without `#` — the fill | `5865f2` (Discord blurple) |
+| `textColor` | hex without `#` | `ffffff` |
+| `borderRadius` | `0`–`16` | `6` |
+
+```md
+[![Profile Views](https://discord-presence.example.com/v1/users/<id>/views.svg)](https://github.com/nichtlegacy/discord-presence-api)
+```
+
+Nothing in this route reaches an upstream, so it answers as long as the container does. When
+it does not — container down, proxy down, `ENABLE_VIEWS=false` — the embed falls back to its
+alt text, which is why the snippet above spells one out.
+
+### What the number means
+
+It counts image fetches, not people. GitHub proxies README images through camo, which
+replaces the client — there is no address, agent or user left to deduplicate by, so
+crawlers and your own reloads count like anyone else. Every README counter works this way;
+[komarev's](https://github.com/antonkomarev/github-profile-views-counter) documentation says
+the same thing about its own numbers.
+
+The one thing that has to be right is the cache header. Camo caches per URL, so anything
+cacheable would freeze the count at whatever the first fetch saw. `views.svg` answers with
+`max-age=0, no-cache, no-store, must-revalidate` and no `ETag` — the recipe komarev uses.
+
+That header is also why the counter stays its own route and never moves into the card: the
+card is cached for `PRESENCE_TTL` seconds, so it could only ever register one hit per
+minute, and making it uncacheable would put every README reader straight through to Lanyard.
+
 ## Endpoints
 
 ```
 GET /healthz
 GET /v1/users/:id             → merged JSON
 GET /v1/users/:id/card.svg    → rendered card
+GET /v1/users/:id/views.svg   → view counter badge (ENABLE_VIEWS=true)
 ```
 
-Only `card.svg` needs to be public. The JSON carries bio, pronouns and connected
+Only `card.svg` and `views.svg` need to be public. The JSON carries bio, pronouns and connected
 accounts, so keep `/v1/users/:id` on the internal network and let your own
 clients (dashboards, Glance widgets) reach the published port directly.
 
@@ -294,8 +342,8 @@ A reverse proxy can enforce that:
 
 ```caddy
 discord-presence.example.com {
-    @card path_regexp ^/v1/users/[0-9]{17,20}/card\.svg$
-    handle @card {
+    @public path_regexp ^/v1/users/[0-9]{17,20}/(card|views)\.svg$
+    handle @public {
         reverse_proxy 10.0.0.2:9242 {
             # Overwrite rather than append: Caddy adds to an existing header,
             # so a client could otherwise hand in any address and walk around
@@ -326,6 +374,9 @@ All configuration is environment variables, read once at startup so a broken dep
 | `ALLOWED_USER_IDS` | — | **Required.** Comma-separated snowflakes this instance will serve |
 | `DEFAULT_PARAMS` | — | Card defaults for the whole instance, as a query string |
 | `ENABLE_DCDN` | `true` | Set `false` to skip dcdn (banner, bio, pronouns, connections) |
+| `ENABLE_VIEWS` | `false` | Turn on the view counter. Needs a writable `/data` — compose mounts a volume |
+| `VIEWS_FILE` | `/data/views.json` | Where counts are stored |
+| `VIEWS_FLUSH_MS` | `10000` | How often counts reach the disk; a hard kill loses at most this much |
 | `PRESENCE_TTL` / `PROFILE_TTL` / `IMAGE_TTL` | `60` / `300` / `3600` | Cache lifetimes in seconds |
 | `FETCH_TIMEOUT_MS` / `MAX_FETCH_BYTES` | `5000` / `2000000` | Upstream timeout and response cap |
 | `RATE_LIMIT` / `RATE_WINDOW_MS` | `60` / `60000` | Requests per IP per window |
@@ -364,8 +415,8 @@ Known ceiling: the host allowlist has no DNS pinning, so a rebinding attack woul
 discord-presence-api/
 ├── src/index.ts        # the three routes, rate limit, security headers
 ├── src/config.ts       # env parsing and the outbound host allowlist
-├── src/lib/            # lanyard, dcdn, normalize, http egress, cache, assets, animate
-├── src/render/         # card.tsx (React → SVG), params, image inlining, brand marks
+├── src/lib/            # lanyard, dcdn, normalize, http egress, cache, assets, animate, views
+├── src/render/         # card.tsx (React → SVG), badge.tsx, params, image inlining, brand marks
 ├── scripts/            # generate-brands.mjs, run via `npm run brands`
 ├── tests/              # normalize, render and security checks
 └── compose.yaml        # hardened deployment, proxy network, no published port

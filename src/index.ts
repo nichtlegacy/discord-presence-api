@@ -11,8 +11,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { config, isAllowedUser } from "./config.ts";
 import { getPresence } from "./lib/presence.ts";
 import { hit, sweep } from "./lib/ratelimit.ts";
+import { bump } from "./lib/views.ts";
 import { collectImages } from "./render/images.ts";
 import { parseCardParams } from "./render/params.ts";
+import { renderBadge, parseBadgeParams } from "./render/badge.tsx";
 import { renderCard } from "./render/card.tsx";
 import { selectActivities } from "./render/select.ts";
 
@@ -97,6 +99,37 @@ app.get("/v1/users/:id/card.svg", async (c) => {
     console.error("card failed", { id, error: String(error) });
     return c.text("upstream unavailable", 502);
   }
+});
+
+/**
+ * The counter itself. Every other route may be cached; this one must not be,
+ * or Camo answers every future reader from its first copy and the number stops
+ * moving. No ETag or Last-Modified either — a revalidation never reaches here.
+ */
+app.get("/v1/users/:id/views.svg", (c) => {
+  const id = c.req.param("id");
+  const check = checkUser(id);
+  if (!check.ok) return c.text(check.message, check.status);
+  if (!config.views.enabled) return c.text("view counting is disabled", 404);
+
+  let svg: string;
+  try {
+    const params = parseBadgeParams(c.req.query(), config.defaultParams);
+    svg = renderToStaticMarkup(renderBadge(bump(id), params));
+  } catch (error) {
+    // Nothing here reaches an upstream, so this only fires on a bug — a broken
+    // image and the embed's alt text beat a half-written badge.
+    console.error("badge failed", { id, error: String(error) });
+    return c.text("badge unavailable", 502);
+  }
+
+  return c.body(`<?xml version="1.0" encoding="UTF-8"?>\n${svg}`, 200, {
+    "content-type": "image/svg+xml; charset=utf-8",
+    "cache-control": "max-age=0, no-cache, no-store, must-revalidate",
+    pragma: "no-cache",
+    expires: "0",
+    "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'",
+  });
 });
 
 app.notFound((c) => c.json({ error: "not found" }, 404));

@@ -54,6 +54,17 @@ export const config = {
     collectible: int(process.env.COLLECTIBLE_TTL, 86_400),
   },
 
+  /**
+   * Profile view counting. Off by default: it is the only feature that writes
+   * anything, so leaving it off keeps the container stateless and read-only.
+   */
+  views: {
+    enabled: process.env.ENABLE_VIEWS === "true",
+    file: process.env.VIEWS_FILE ?? "/data/views.json",
+    /** Counts live in memory and hit the disk at most this often. */
+    flushMs: int(process.env.VIEWS_FLUSH_MS, 10_000),
+  },
+
   limits: {
     /** Upstream request timeout. */
     fetchTimeoutMs: int(process.env.FETCH_TIMEOUT_MS, 5000),

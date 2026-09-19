@@ -17,6 +17,9 @@ RUN npm ci --omit=dev && npm cache clean --force
 COPY --from=build /app/dist ./dist
 # Nitro display-name fonts, embedded per card at render time.
 COPY assets ./assets
+# Only written when ENABLE_VIEWS=true. Created here so a named volume mounted
+# over it inherits the ownership instead of landing root-owned under USER node.
+RUN mkdir -p /data && chown node:node /data
 USER node
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s \
