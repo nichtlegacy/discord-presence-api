@@ -23,7 +23,7 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "@types/node": "^25.9.8",
+    "@types/node": "^24.19.1",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
     "simple-icons": "^16.33.0",
