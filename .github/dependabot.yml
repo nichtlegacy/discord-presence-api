@@ -13,6 +13,10 @@ updates:
     groups:
       npm:
         patterns: ["*"]
+    # Types follow the runtime major in the Dockerfile (node:24), not npm latest.
+    ignore:
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
 
   # Actions are pinned to commit SHAs; Dependabot reads the "# vX.Y.Z" comment
   # and rewrites both the SHA and the comment.
