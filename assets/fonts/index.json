@@ -1,18 +1,9 @@
 {
-  "1": {
-    "family": "Bangers",
-    "file": "bangers.woff2",
-    "weight": 400
-  },
-  "2": {
-    "family": "BioRhyme",
-    "file": "biorhyme.woff2",
-    "weight": 700
-  },
   "3": {
     "family": "Cherry Bomb One",
     "file": "cherry-bomb-one.woff2",
-    "weight": 400
+    "weight": 400,
+    "letterSpacing": "0.04em"
   },
   "4": {
     "family": "Chicle",
@@ -22,26 +13,57 @@
   "6": {
     "family": "MuseoModerno",
     "file": "museomoderno.woff2",
-    "weight": 700
+    "weight": 500,
+    "letterSpacing": "0.01em"
   },
   "7": {
-    "family": "Cinzel",
-    "file": "cinzel.woff2",
-    "weight": 700
+    "family": "Medieval",
+    "file": "medieval.woff2",
+    "weight": 400,
+    "letterSpacing": "0.02em"
   },
   "8": {
     "family": "Pixelify Sans",
     "file": "pixelify-sans.woff2",
-    "weight": 700
+    "weight": 500,
+    "letterSpacing": "0.02em"
   },
-  "9": {
-    "family": "Bree Serif",
-    "file": "bree-serif.woff2",
-    "weight": 400
+  "10": {
+    "family": "Vampyre",
+    "file": "vampyre.woff2",
+    "weight": 400,
+    "letterSpacing": "0.01em"
   },
   "12": {
     "family": "Zilla Slab",
     "file": "zilla-slab.woff2",
+    "weight": 600,
+    "letterSpacing": "0.03em"
+  },
+  "13": {
+    "family": "Playpen Sans",
+    "file": "playpen-sans.woff2",
     "weight": 700
+  },
+  "14": {
+    "family": "Orbitron",
+    "file": "orbitron.woff2",
+    "weight": 700,
+    "letterSpacing": "0.03em"
+  },
+  "15": {
+    "family": "New Rocker",
+    "file": "new-rocker.woff2",
+    "weight": 400
+  },
+  "16": {
+    "family": "Kalam",
+    "file": "kalam.woff2",
+    "weight": 700
+  },
+  "17": {
+    "family": "Bungee",
+    "file": "bungee.woff2",
+    "weight": 400
   }
 }

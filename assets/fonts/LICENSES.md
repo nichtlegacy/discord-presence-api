@@ -2,17 +2,21 @@
 
 Every font in this directory is licensed under the SIL Open Font License 1.1.
 The copyright line of each is reproduced below; the licence text is identical
-and follows once at the end.
+and follows once at the end. Medieval and Vampyre are Discord's renamed builds
+of Néo-Castel and Sinistre, taken from its web client.
 
-- **Bangers** — Copyright 2010 The Bangers Project Authors (https://github.com/googlefonts/bangers)
-- **BioRhyme** — Copyright 2016 The BioRhyme Project Authors (https://github.com/aoifemooney/makingbiorhyme)
 - **Cherry Bomb One** — Copyright 2019 The Cherry Bomb Project Authors (https://github.com/satsuyako/CherryBomb)
-- **Chicle** — Copyright (c) 2011 Angel Koziupa (sudtipos@sudtipos.com),
+- **Chicle** — Copyright (c) 2007 Angel Koziupa (sudtipos@sudtipos.com), Copyright (c) 2007 Alejandro Paul (sudtipos@sudtipos.com), with Reserved Font Name "Chicle"
 - **MuseoModerno** — Copyright 2020 The MuseoModerno Project Authors (https://github.com/Omnibus-Type/MuseoModerno)
-- **Cinzel** — Copyright 2020 The Cinzel Project Authors (https://github.com/NDISCOVER/Cinzel)
+- **Medieval** (Néo-Castel) — Copyright 2023 Max Lillo; Portions Copyright 2025 Discord Inc.
 - **Pixelify Sans** — Copyright 2021 The Pixelify Sans Project Authors (https://github.com/eifetx/Pixelify-Sans)
-- **Bree Serif** — Copyright (c) 2011, TypeTogether (www.type-together.com), 
+- **Vampyre** (Sinistre) — © 2023, Jules Durand & Collletttivo; Portions Copyright 2025 Discord Inc.
 - **Zilla Slab** — Copyright 2017, The Mozilla Foundation
+- **Playpen Sans** — Copyright 2023 The Playpen Sans Project Authors (https://github.com/TypeTogether/Playpen-Sans)
+- **Orbitron** — Copyright 2018 The Orbitron Project Authors (https://github.com/theleagueof/orbitron), with Reserved Font Name: "Orbitron".
+- **New Rocker** — Copyright (c) 2012, Pablo Impallari (www.impallari.com|impallari@gmail.com), Copyright (c) 2012, Brenda Gallo (gbrenda1987@gmail.com), Copyright (c) 2012, Rodrigo Fuenzalida (www.rfuenzalida.com|hello@rfuenzalida.com), with Reserved Font Name 'New Rocker'
+- **Kalam** — Copyright (c) 2014 Indian Type Foundry (info@indiantypefoundry.com)
+- **Bungee** — Copyright 2023 The Bungee Project Authors (https://github.com/djrrb/Bungee)
 
 ---
 

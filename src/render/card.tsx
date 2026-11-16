@@ -128,7 +128,10 @@ function nameStyle(user: NormalizedUser, params: CardParams, colors: Palette): C
   const color1 = styles.colors[0]!;
   const color2 = styles.colors[1] ?? color1;
   const font = params.nameFont ? embeddedFont(styles.fontId) : null;
-  const family: CSSProperties = font ? { fontFamily: `'${font.family}'` } : {};
+  // Like Discord: no faux bold on the 400-weight faces, and the face's own tracking.
+  const family: CSSProperties = font
+    ? { fontFamily: `'${font.family}'`, fontSynthesis: "none", letterSpacing: font.letterSpacing }
+    : {};
 
   const gradientText = (angle: string, mid: string): CSSProperties => ({
     ...family,

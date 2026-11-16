@@ -1,7 +1,8 @@
 /**
  * Nitro display-name fonts, embedded into the card.
  *
- * Discord styles names with Google Fonts and reports the choice as `font_id`.
+ * Discord reports the typeface as `font_id`; the map is read off its web client
+ * (see scripts/fetch-fonts.mjs), files from Google Fonts or the client itself.
  * A webfont cannot be linked from an SVG that GitHub serves through its image
  * proxy, so the file travels inside the document as a data URI — the same
  * reason every image here is inlined. Verified to render in Chromium when the
@@ -17,6 +18,7 @@ interface FontEntry {
   family: string;
   file: string;
   weight: number;
+  letterSpacing?: string;
 }
 
 const DIR = new URL("../../assets/fonts/", import.meta.url);
@@ -46,6 +48,8 @@ function dataUri(entry: FontEntry): string | null {
 
 export interface EmbeddedFont {
   family: string;
+  /** Discord's tracking for this face, when it sets one. */
+  letterSpacing?: string;
   /** A complete @font-face rule, ready to drop into a <style> element. */
   face: string;
 }
@@ -60,6 +64,7 @@ export function embeddedFont(fontId: number | undefined): EmbeddedFont | null {
 
   return {
     family: entry.family,
+    letterSpacing: entry.letterSpacing,
     face:
       `@font-face{font-family:'${entry.family}';` +
       `src:url(${uri}) format('woff2');font-weight:${entry.weight};font-display:block}`,

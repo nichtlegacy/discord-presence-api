@@ -103,7 +103,7 @@ test("the Nitro typeface travels inside the document", () => {
     ...radio,
     discord_user: {
       ...user,
-      // font_id 12 is Zilla Slab, confirmed against Discord's own markup.
+      // font_id 12 is Zilla Slab ("Tempo" in Discord's picker).
       display_name_styles: { font_id: 12, effect_id: 2, colors: [16690792, 16350208] },
     },
   };
@@ -116,6 +116,20 @@ test("the Nitro typeface travels inside the document", () => {
   // A webfont cannot be linked from an SVG behind an image proxy, so the only
   // options are inlining it or leaving it out — never a reference.
   assert.ok(!/src:url\(https?:/.test(withFont), "font referenced instead of embedded");
+
+  assert.ok(withFont.includes("font-synthesis:none"), "faux bold not suppressed");
+  assert.ok(withFont.includes("letter-spacing:0.03em"), "Discord's tracking not applied");
+
+  const fontId = (id: number): LanyardData => ({
+    ...styled,
+    discord_user: { ...styled.discord_user, display_name_styles: { font_id: id, effect_id: 1, colors: [16690792] } },
+  });
+  // GTA VI's Pricedown is licensed to Discord alone; Bungee stands in for it.
+  assert.match(card(fontId(17)), /@font-face\{font-family:'Bungee'/, "font_id 17 not mapped");
+  // Discord retired ids 1, 2, 5 and 9 to gg sans, so the card keeps its own font.
+  for (const id of [1, 2, 5, 9, 11]) {
+    assert.ok(!card(fontId(id)).includes("@font-face"), `font_id ${id} should keep the card font`);
+  }
 
   const without = card(styled, { nameFont: "false" });
   assert.ok(!without.includes("@font-face"), "nameFont=false still embedded a font");
